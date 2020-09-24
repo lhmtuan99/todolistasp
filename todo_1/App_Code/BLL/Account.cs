@@ -21,10 +21,10 @@ namespace todo_1.App_Code.BLL
             DAL.Account_DAL acDAL = new DAL.Account_DAL();
             return acDAL.GetOneAccount(taikhoan, matkhau);
         }
-        public DataTable GetJobByID()
+        public DataTable GetJobByID(string d)
         {
             DAL.Job_DAL jobs = new DAL.Job_DAL();
-            return jobs.GetJobById(id);
+            return jobs.GetJobById(id,d);
         }
         public void Insert()
         {

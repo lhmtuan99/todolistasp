@@ -16,10 +16,10 @@ namespace todo_1.App_Code.BLL
         public string nv_name { get; set;}
         public int job_id { get; set; }
 
-        public DataTable GetAllJobs(string id)
+        public DataTable GetAllJobs(string id,string d)
         {
             DAL.Job_DAL job = new DAL.Job_DAL();
-            return job.GetJobById(id);
+            return job.GetJobById(id,d);
         }
         public DataTable GetJobsPulic()
         {
@@ -40,9 +40,11 @@ namespace todo_1.App_Code.BLL
             DAL.Job_DAL job = new DAL.Job_DAL();
             return job.GetContacts(job_id.ToString(),idnv);
         }
-        public void Insert()
+        public void Insert(int id)
         {
-
+            DAL.Job_DAL job = new DAL.Job_DAL();
+            job.Insert(job_id,job_title,job_date);
+            job.AddContactById(id, job_id);
         }
         public void Delete()
         {
@@ -58,6 +60,20 @@ namespace todo_1.App_Code.BLL
         {
             DAL.Job_DAL job = new DAL.Job_DAL();
             job.DeleteContact(idnv,job_id);
+        }
+        public void AddContact(string email)
+        {
+            DAL.Job_DAL job = new DAL.Job_DAL();
+            if(job.CheckEmailExist(email)>=1)
+            {
+                if (job.EmailExistWithJobId(email, job_id)<=0) 
+                job.AddContact(email, job_id);
+            }
+        }
+        public int CreateIdJobNext()
+        {
+            DAL.Job_DAL job = new DAL.Job_DAL();
+            return job.CreateIDJob();
         }
     }
 }

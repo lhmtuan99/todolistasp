@@ -9,12 +9,12 @@ namespace todo_1.App_Code.DAL
 {
     public class Job_DAL
     {
-        public DataTable GetJobById(string id)
+        public DataTable GetJobById(string id,string dt)
         {
             ConnectDB.OpenConect();
             using (ConnectDB.con)
             {
-                string sQuery = "select * from CongViec cv, (select * from PHANCONG where nv_id = '"+id+"') nt where cv.job_id = nt.job_id";
+                string sQuery = "select* from CongViec cv, (select * from PHANCONG where nv_id ='"+id+"') nt where cv.job_id = nt.job_id and job_date>='"+dt+"' and job_date<='"+DateTime.Parse(dt).AddDays(7).ToString()+"'";
                 SqlCommand cmd = new SqlCommand(sQuery, ConnectDB.con);
                 SqlDataAdapter ad = new SqlDataAdapter(cmd);
 
@@ -69,11 +69,17 @@ namespace todo_1.App_Code.DAL
                 return ds.Tables[0];
             }
         }
-        public void Insert()
+        public void Insert(int jobid,string title,DateTime day)
         {
-            DataTable dt = GetAllJobs();
-            
-            
+            ConnectDB.OpenConect();
+            using (ConnectDB.con)
+            {
+                // 
+                string sQuery = "insert into CongViec(job_id,job_title,job_date,job_status,job_public) values('"+jobid+"',N'"+title+"','"+day+"','"+0+"','"+0+"')";
+                SqlCommand cmd = new SqlCommand(sQuery, ConnectDB.con);
+                cmd.ExecuteNonQuery();
+
+            }
         }
         public void Delete(string id)
         {
@@ -114,6 +120,75 @@ namespace todo_1.App_Code.DAL
                 SqlCommand cmd = new SqlCommand(sQuery, ConnectDB.con);
                 cmd.ExecuteNonQuery();
 
+            }
+        }
+        public void AddContact(string email, int idjob)
+        {
+            ConnectDB.OpenConect();
+            using (ConnectDB.con)
+            {
+                // delete phan cong cua 1 nhan vien
+                string sQuery = "insert into PHANCONG(job_id,nv_id) values('"+idjob+"',(select nv_id from NhanVien where nv_email='"+email+"'))";
+                SqlCommand cmd = new SqlCommand(sQuery, ConnectDB.con);
+                cmd.ExecuteNonQuery();
+
+            }
+        }
+        public void AddContactById(int idnv, int idjob)
+        {
+            ConnectDB.OpenConect();
+            using (ConnectDB.con)
+            {
+                // delete phan cong cua 1 nhan vien
+                string sQuery = "insert into PHANCONG(job_id,nv_id) values('" + idjob + "','"+idnv+"')";
+                SqlCommand cmd = new SqlCommand(sQuery, ConnectDB.con);
+                cmd.ExecuteNonQuery();
+            }
+        }
+        public int CreateIDJob()
+        {
+            ConnectDB.OpenConect();
+            using (ConnectDB.con)
+            {
+                // delete phan cong cua 1 nhan vien
+                string sQuery = "select MAX(job_id) as maxcurjob from CongViec";
+                SqlCommand cmd = new SqlCommand(sQuery, ConnectDB.con);
+                return (int)cmd.ExecuteScalar() +1;
+            }
+        }
+
+        // 
+        public int CheckEmailExist(string email)
+        {
+            ConnectDB.OpenConect();
+            using (ConnectDB.con)
+            {
+                // delete phan cong cua 1 nhan vien
+                string sQuery = "select Count(nv_email) from NhanVien where nv_email='"+email+"'";
+                SqlCommand cmd = new SqlCommand(sQuery, ConnectDB.con);
+                return (int)cmd.ExecuteScalar();
+            }
+        }
+        public int EmailExistWithJobId(string email,int idjob)
+        {
+            ConnectDB.OpenConect();
+            using (ConnectDB.con)
+            {
+                //
+                string sQuery = "select COUNT(*) from PHANCONG where job_id ='"+idjob+"' and nv_id=(select nv_id from NhanVien where nv_email='"+email +"')";
+                SqlCommand cmd = new SqlCommand(sQuery, ConnectDB.con);
+                return (int)cmd.ExecuteScalar();
+            }
+        }
+        public int CheckEmailById(int id)
+        {
+            ConnectDB.OpenConect();
+            using (ConnectDB.con)
+            {
+                // delete phan cong cua 1 nhan vien
+                string sQuery = "select COUNT(*) from NhanVien where nv_id ='" + id + "' ";
+                SqlCommand cmd = new SqlCommand(sQuery, ConnectDB.con);
+                return (int)cmd.ExecuteScalar();
             }
         }
     }
